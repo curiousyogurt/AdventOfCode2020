@@ -102,7 +102,7 @@ dotted black bags contain no other bags." #"\n"))
      remaining target]
     (if (empty? remaining)
       (rest (set results)) ; Remove the first element (=target)
-      (let [result (find-bags data (first remaining))]
+      (let [result (find-rules data (first remaining))]
         (recur (conj results (first remaining))
                (into (rest remaining) (mapv first result)))))))
 
@@ -120,7 +120,7 @@ dotted black bags contain no other bags." #"\n"))
                      (into {} (map #(find-rules data %)))
                      (map first))] 
     (if-not (empty? results)
-      (into results (find-all-containers data results)))))
+      (into results (find-all-containers-revised data results)))))
 
 ;;;
 ;;; Given rules (data) and a target as a string, count up all the containers.
