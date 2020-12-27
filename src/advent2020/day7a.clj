@@ -59,10 +59,14 @@ dotted black bags contain no other bags." #"\n"))
         ;; Match before and after "bags contain", removing spacing.
         (re-matches #"(\w+ \w+) bags contain (.+)" item)]
     ;; For consequent (after "bags contain"), split along commas.
-    [antecedent (str/split consequent #" bag(s)?(\, |.)")]))
+    {antecedent (str/split consequent #" bag(s)?(\, |.)")}))
 
-(def parsed-input-data (map parse-items input-data))
-(def parsed-sample-data (map parse-items sample-data))
+;;;
+;;; Use maps for parsed data so that we can look up the consequent with `(get
+;;; <dataset name> <colour>).
+;;;
+(def parsed-input-data (apply merge (map #(into {} (parse-items %)) input-data)))
+(def parsed-sample-data (apply merge (map #(into {} (parse-items %)) sample-data)))
 
 ;;;
 ;;; Predicate that returns true iff the consequent (after "contains") matches
@@ -73,7 +77,7 @@ dotted black bags contain no other bags." #"\n"))
   [rule target]
   (->> rule
        last
-       (filterv #(str/includes? % target))
+       (filter #(str/includes? % target))
        empty?
        not))
 
@@ -81,15 +85,15 @@ dotted black bags contain no other bags." #"\n"))
 ;;; Given a set of rules (data) and a target as a string (e.g., "shiny gold")
 ;;; pick out just those rules that match.
 ;;;
-(defn find-bags
+(defn find-rules
   [data target]
-  (filterv #(contains-bag? % target) data))
+  (into {} (filter #(contains-bag? % target) data)))
 
 ;;;
 ;;; Given rules (data) and a target as a string (e.g., "shiny gold"), build
 ;;; up a results vector by finding all those rules that have the target as
 ;;; a consequent.  Move (first remaining) to results; and add any new bags
-;;; (as antecedents) to remainincg.
+;;; (as antecedents) to remaining.
 ;;;
 (defn find-all-containers
   [data target]
@@ -103,11 +107,27 @@ dotted black bags contain no other bags." #"\n"))
                (into (rest remaining) (mapv first result)))))))
 
 ;;;
+;;; A revised version of find-all-containers, specifically designed to use
+;;; straightup recursion (no loops), in order to have a more straightforward
+;;; presentation of the function.  The difference between the original version
+;;; and -revised, aside form being shorter and calling itself directly, is
+;;; that by calling `(map #(find-rules data %))`, we are able to deal with
+;;; multiple targets as opposed to just one at a time.
+;;;
+(defn find-all-containers-revised
+  [data targets]
+  (let [results (->> targets
+                     (into {} (map #(find-rules data %)))
+                     (map first))] 
+    (if-not (empty? results)
+      (into results (find-all-containers data results)))))
+
+;;;
 ;;; Given rules (data) and a target as a string, count up all the containers.
 ;;;
 (defn solve
   [data target]
-  (count (find-all-containers data [target])))
+  (count (set (find-all-containers-revised data [target]))))
 
 ;;;
 ;;; Kick off computation
