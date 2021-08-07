@@ -72,14 +72,14 @@ dotted black bags contain no other bags." #"\n"))
   [data antecedent]
   (mapv parse-consequent (get data antecedent)))
 
-() ;;;
+;;;
 ;;; Count the bags in a given bag.  Do this by reduce, taking as the argument
 ;;; some starting value (k), then a collection of consequents, deconstructed
 ;;; so that we have n (the number of bags) and the colour.  Then, use reduce
 ;;; to add to k the number of bags in the current element of the collection,
 ;;; and then mulitply by n the number of bags that go in the colour.  Do this
 ;;; recursively to solve the problem.
-;;;)
+;;;
 (defn bag-count
   [data antecedent]
   (let [consequent (consequents data antecedent)]
