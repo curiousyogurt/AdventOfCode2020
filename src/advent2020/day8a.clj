@@ -1,9 +1,9 @@
-() ;;;;
+;;;;
 ;;;; Advent of Code 2020: Day 8, Part a
 ;;;; https://adventofcode.com/2020/day/8
 ;;;;
 ;;;; Handheld Halting
-;;;;)
+;;;;
 (ns day8a.ns
   (:require [clojure.string :as str]))
 
